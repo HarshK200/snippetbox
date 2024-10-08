@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/harshk200/snippetbox/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -13,22 +15,33 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/pages/home.tmpl",
-		"./ui/html/partials/nav.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+    snippets, err := app.snippetModel.Latest()
+    if err != nil {
+        app.serverError(w, err)
+        return
+    }
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.errorLog.Printf(err.Error())
-		app.serverError(w, err)
-	}
+    for _, snippet := range snippets {
+        fmt.Fprintf(w, "%+v\n", snippet)
+    }
+
+
+	// filesPath := []string{
+	// 	"./ui/html/base.tmpl",
+    // 	"./ui/html/partials/nav.tmpl",
+	// 	"./ui/html/pages/home.tmpl",
+	// }
+	// ts, err := template.ParseFiles(filesPath...)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+	//
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.errorLog.Printf(err.Error())
+	// 	app.serverError(w, err)
+	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +51,18 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// This call writesheader to 200 status by default and also manages content-type and length
-	fmt.Fprintf(w, "Display a specific snippet with id: %d", id)
+	snippet, err := app.snippetModel.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+            return
+		} else {
+			app.serverError(w, err)
+			return
+		}
+	}
+
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
@@ -49,5 +72,14 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("create new snippet"))
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7 // expires in 7 days i.e. days
+
+	id, err := app.snippetModel.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
