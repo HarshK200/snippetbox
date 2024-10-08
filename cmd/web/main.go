@@ -6,15 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"html/template"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/harshk200/snippetbox/internal/models"
 )
 
 type application struct {
-	errorLog     *log.Logger
-	infoLog      *log.Logger
-	snippetModel *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippetModel  *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func openDB(dns string) (*sql.DB, error) {
@@ -49,10 +51,16 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+    if err != nil {
+        errorLog.Fatal(err)
+    }
+
 	app := &application{
-		infoLog:      infoLog,
-		errorLog:     errorLog,
-        snippetModel: &models.SnippetModel{DB: db}, // NOTE: creating the new snippetModel Instance here
+		infoLog:       infoLog,
+		errorLog:      errorLog,
+		snippetModel:  &models.SnippetModel{DB: db}, // NOTE: creating the new snippetModel Instance here
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{
