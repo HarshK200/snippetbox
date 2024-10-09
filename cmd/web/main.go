@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"html/template"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/harshk200/snippetbox/internal/models"
@@ -52,9 +52,9 @@ func main() {
 	defer db.Close()
 
 	templateCache, err := newTemplateCache()
-    if err != nil {
-        errorLog.Fatal(err)
-    }
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 
 	app := &application{
 		infoLog:       infoLog,
