@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -23,16 +24,22 @@ func (app *application) notFound(w http.ResponseWriter) {
 }
 
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
-    ts, ok := app.templateCache[page]
-    if !ok {
-        err := errors.New(fmt.Sprintf("template %s doesn't exists", page))
-        app.serverError(w, err)
-        return
-    }
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := errors.New(fmt.Sprintf("template %s doesn't exists", page))
+		app.serverError(w, err)
+		return
+	}
 
-    w.WriteHeader(status)
-    err := ts.ExecuteTemplate(w, "base", data)
-    if err != nil {
-        app.serverError(w, err)
-    }
+	buf := new(bytes.Buffer)
+
+	// NOTE: executing the template to make sure we are don't encounter any error
+	err := ts.ExecuteTemplate(buf, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.WriteHeader(status)
+	buf.WriteTo(w)
 }
