@@ -23,6 +23,7 @@ func (v *Validator) AddFieldError(key, message string) {
 	}
 }
 
+// if ok is false then CheckField() adds the field to the FieldErrors map on the validator struct
 func (v *Validator) CheckField(ok bool, key, message string) {
 	if !ok {
 		v.AddFieldError(key, message)
@@ -30,6 +31,7 @@ func (v *Validator) CheckField(ok bool, key, message string) {
 }
 
 // returns true if a value is not an empty string
+// NotBlank() checks on the value after applying TimeSpace
 func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
 }
