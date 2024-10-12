@@ -67,6 +67,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+    sessionManager.Cookie.Secure = true
 
 	app := &application{
 		infoLog:        infoLog,
@@ -84,6 +85,6 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on port %s\n", *addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err) // NOTE: ListenAndServe always return a not-nil error so no need to put a if err != nil check here
 }

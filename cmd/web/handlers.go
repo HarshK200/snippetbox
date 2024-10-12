@@ -67,7 +67,11 @@ type snippetCreateForm struct {
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	var formData snippetCreateForm
-	app.decodePostForm(r, &formData)
+	err := app.decodePostForm(r, &formData)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	// NOTE: form data validation
 	formData.CheckField(validator.NotBlank(formData.Title), "title", "This field cannot be blank")
@@ -88,6 +92,9 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		app.serverError(w, err)
 		return
 	}
+
+	// NOTE: after the session data is created succesfully we put that info in the session manager
+	app.sessionManager.Put(r.Context(), "flash", "Snippet created succesfully!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
