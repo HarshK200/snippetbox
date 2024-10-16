@@ -66,11 +66,11 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
-	// NOTE: ok is returned when doing type assersions. true if assertion was successful else false
-	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool) // NOTE: returns nil if no value is associated with the key
-	if !ok {
-		return false
-	}
+    // NOTE: session manager makes a db call
 
-	return isAuthenticated
+    isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+    if !ok{
+    }
+
+    return isAuthenticated
 }
