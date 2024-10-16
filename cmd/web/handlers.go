@@ -11,6 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func ping(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.snippetModel.Latest()
 	if err != nil {
@@ -76,7 +80,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	formData.CheckField(validator.NotBlank(formData.Title), "title", "This field cannot be blank")
 	formData.CheckField(validator.MaxChars(formData.Title, 100), "title", "This field cannot be more than 100 characters long")
 	formData.CheckField(validator.NotBlank(formData.Content), "content", "This field cannot be blank")
-	formData.CheckField(validator.PermittedInt(formData.Expires, 1, 7, 365), "expires", "This field can only be 1, 7 or 365")
+	formData.CheckField(validator.PermittedValue(formData.Expires, 1, 7, 365), "expires", "This field can only be 1, 7 or 365")
 
 	// NOTE: if any errors re-render the form
 	if !formData.Valid() {

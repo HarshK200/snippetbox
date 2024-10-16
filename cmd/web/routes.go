@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/harshk200/snippetbox/ui"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 )
@@ -15,8 +16,8 @@ func (app *application) routes() http.Handler {
 	})
 
 	// setting up the static routes
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
+	fileServer := http.FileServer(http.FS(ui.Files))
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
 	// NOTE: middleware for session management
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
