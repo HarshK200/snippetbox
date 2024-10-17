@@ -11,6 +11,7 @@ import (
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
+	// NOTE: renders a custom
 	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 	})
@@ -29,7 +30,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
 	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
 
-    // NOTE: protected routes i.e. requires authentication (the middleware makes a db call)
+	// NOTE: protected routes i.e. requires authentication (the middleware makes a db call)
 	protected := dynamic.Append(app.requireAuthentication)
 
 	router.Handler(http.MethodGet, "/snippet/create", protected.ThenFunc(app.snippetCreate))

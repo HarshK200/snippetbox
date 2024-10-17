@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 
 	"github.com/go-playground/form/v4"
 )
@@ -22,7 +23,13 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 }
 
 func (app *application) notFound(w http.ResponseWriter) {
-	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	data := &templateData{
+		CurrentYear:     time.Now().Year(),
+		IsAuthenticated: false,
+		NotFound:        true,
+	}
+
+	app.render(w, http.StatusNotFound, "notFound.tmpl", data)
 }
 
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {

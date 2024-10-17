@@ -12,7 +12,13 @@
             <header>
                 <h1><a href="/">Snippetbox</a></h1>
             </header>
-            {{template "nav" .}}
+            {{if .NotFound}}
+                <nav>
+                    <a href="/">Home</a>
+                </nav>
+            {{else}}
+                {{template "nav" .}}
+            {{end}}
             <main>
                 <!-- NOTE: only executed if .Flash field exists/is not empty -->
                 {{with .Flash}}

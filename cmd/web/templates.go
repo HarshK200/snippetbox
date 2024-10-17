@@ -20,6 +20,7 @@ type templateData struct {
 	Flash           string
 	IsAuthenticated bool
 	CSRFToken       string
+	NotFound        bool
 }
 
 func (app *application) newTemplateData(r *http.Request) *templateData {
@@ -28,13 +29,14 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r), // NOTE: checking if this request is authenticated
 		CSRFToken:       nosurf.Token(r),
+		NotFound:        false,
 	}
 }
 
 func humanDate(t time.Time) string {
-    if t.IsZero(){
-        return ""
-    }
+	if t.IsZero() {
+		return ""
+	}
 
 	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
