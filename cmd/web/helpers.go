@@ -13,6 +13,7 @@ import (
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	// fmt.Printf("\n==========================STACK==========================\n%v\n", trace)
 	app.errorLog.Output(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -30,6 +31,8 @@ func (app *application) notFound(w http.ResponseWriter) {
 	}
 
 	app.render(w, http.StatusNotFound, "notFound.tmpl", data)
+
+	// http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {

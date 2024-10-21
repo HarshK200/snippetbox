@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type SnippetModelInterface interface {
+	Insert(title, content string, expires int) (int, error)
+	Get(id int) (*Snippet, error)
+	Latest() ([]*Snippet, error)
+}
+
 // represents the data a single snippet holds
 type Snippet struct {
 	ID      int
@@ -81,9 +87,9 @@ func (m *SnippetModel) Latest() ([]*Snippet, error) {
 		snippets = append(snippets, s)
 	}
 
-    if err = rows.Err(); err != nil {
-        return nil, err
-    }
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return snippets, nil
 }
