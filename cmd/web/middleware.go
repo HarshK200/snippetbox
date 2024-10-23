@@ -72,23 +72,23 @@ func noSurf(next http.Handler) http.Handler {
 // NOTE: this middleware adds isAuthenticatedContextKey with true or false (also checks if the user exists)
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID") // NOTE: returns 0 if doesn't exists
-        if id == 0 {
-            next.ServeHTTP(w, r)
-            return
-        }
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID") // NOTE: returns 0 if doesn't exists
+		if id == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
 
-        exists, err := app.userModel.Exists(id)
-        if err != nil {
-            app.serverError(w, err)
-            return
-        }
+		exists, err := app.userModel.Exists(id)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
 
-        if exists {
-            ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-            r = r.WithContext(ctx)
-        }
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
 
-        next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r)
 	})
 }
